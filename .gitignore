@@ -1,0 +1,15 @@
+# Node
+node_modules/
+
+# Env
+.env
+.env.*
+
+# Build
+dist/
+build/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/

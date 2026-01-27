@@ -1,0 +1,8 @@
+{
+  "name": "diary-app",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.19.0",
+    "pg": "^8.17.2"
+  }
+}

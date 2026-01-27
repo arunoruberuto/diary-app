@@ -1,0 +1,114 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f7f5ef;
+  margin: 0;
+  color: #2e2e2e;
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.left, .right {
+  padding: 24px;
+}
+
+.left {
+  width: 50%;
+  background: #faf9f4;
+  border-right: 1px solid #e0e0d8;
+}
+
+.right {
+  width: 50%;
+  overflow-y: auto;
+}
+
+textarea {
+  width: 95%;
+  height: 60%;
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #d4d4c8;
+}
+
+button {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: #7fa88d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+details {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  position: relative; /* Penting! Agar tombol X nempel di pojok kotak ini */
+}
+.entry-content {
+  position: relative; /* Anchor untuk tombol delete */
+  padding-top: 10px;
+}
+
+summary {
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 0;
+  /* Kita tidak pakai Flex di sini supaya marker bawaan browser aman */
+}
+
+.delete-btn {
+  display: none; /* Sembunyi total */
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: transparent;
+  color: #a0a096;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+details[open] .delete-btn {
+  display: block;
+}
+
+.delete-btn:hover {
+  color: #e63946;
+  transform: scale(1.2);
+}
+
+.entry-content {
+  /* Padding kiri 20px agar teks isi lurus dengan teks tanggal (melewati panah) */
+  padding: 10px 0 0 5px; 
+}
+
+.journal-text {
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+  color: #4a4a4a;
+}
+
+/* Memastikan button global tidak mengganggu delete-btn */
+details button:not(.delete-btn) {
+  /* Style untuk button "Generate Reflection" tetap aman */
+}
+
+.reflection {
+  margin-top: 12px;
+  padding: 12px;
+  background: #eef3ee;
+  border-radius: 6px;
+}
