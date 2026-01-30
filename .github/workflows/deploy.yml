@@ -23,7 +23,8 @@ jobs:
             
             cd ~/diary-app 
                         
-            git pull origin main
+            git fetch --all
+            git reset --hard origin/main
                         
             npm install
                         
