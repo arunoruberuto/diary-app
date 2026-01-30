@@ -1,0 +1,38 @@
+name: Deploy Diary App to Singapore
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            
+            cd ~/diary-app 
+                        
+            git pull origin main
+                        
+            npm install
+                        
+            pm2 restart all
+
+      - name: Reset Cache CloudFront (Invalidation)
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ap-southeast-1
+                           
+          aws cloudfront create-invalidation --distribution-id E2C36JZS9AS2AK --paths "/*"

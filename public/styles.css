@@ -153,3 +153,43 @@ details button:not(.delete-btn) {
   background: #eef3ee;
   border-radius: 6px;
 }
+
+/* --- RESPONSIVE DESIGN --- */
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column; 
+    height: auto; 
+  }
+
+  .left, .right {
+    width: 100%; 
+    border-right: none; 
+    padding: 16px; 
+  }
+
+  .left {
+    border-bottom: 1px solid #e0e0d8;
+    height: auto;
+    min-height: 400px; 
+  }
+
+  textarea {
+    width: 100%; 
+    height: 200px; 
+    box-sizing: border-box;
+  }
+
+  .demo-banner {
+    position: relative; 
+    bottom: 0;
+    left: 0;
+    margin-top: 20px;
+    width: fit-content;
+  }
+
+  .action-bar {
+    flex-direction: column; 
+    align-items: flex-start;
+  }
+}
