@@ -33,10 +33,10 @@ async function loadEntries() {
       <div class="entry-content">
         <p class="journal-text">${e.content}</p>
 
-        <div class="reflection">
+        <div class="reflection" id="reflect-${e.id}">
           ${e.reflection
             ? `<strong>${e.mood}</strong><p>${e.reflection}</p>`
-            : `<button onclick="reflect('${e.id}')">Generate Reflection</button>`}
+            : `<button onclick="event.stopPropagation(); reflect('${e.id}')">振り返りを見る</button>`}
           </div>
       </div>
     `;
@@ -46,15 +46,33 @@ async function loadEntries() {
 }
 
 async function deleteEntry(id) {
-  if (confirm("Hapus catatan ini?")) {
+  if (confirm("削除しますか？")) {
     await fetch(`/entries/${id}`, { method: "DELETE" });
     loadEntries();
   }
 }
 
 async function reflect(id) {
-  await fetch(`/entries/${id}/reflection`, { method: "POST" });
-  loadEntries();
+  const res = await fetch(`/entries/${id}/reflection`, { method: "POST" });
+  const data = await res.json();
+
+  const div = document.getElementById(`reflect-${id}`);
+  div.innerHTML = `<strong>${data.mood}</strong><p>${data.text}</p>`;
+}
+
+async function fetchInstanceInfo() {
+  try {
+    const response = await fetch('/api/instance-info');
+    const data = await response.json();
+
+    const idElement = document.getElementById('instance-id');
+    if (idElement) {
+      idElement.innerText = data.instanceId;
+    }
+  } catch (err) {
+    console.error("メタデータの取得に失敗しました:", err);
+  }
 }
 
 loadEntries();
+fetchInstanceInfo();

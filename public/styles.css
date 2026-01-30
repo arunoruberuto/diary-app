@@ -49,10 +49,10 @@ details {
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 12px;
-  position: relative; /* Penting! Agar tombol X nempel di pojok kotak ini */
+  position: relative;
 }
 .entry-content {
-  position: relative; /* Anchor untuk tombol delete */
+  position: relative;
   padding-top: 10px;
 }
 
@@ -61,11 +61,10 @@ summary {
   cursor: pointer;
   outline: none;
   padding: 4px 0;
-  /* Kita tidak pakai Flex di sini supaya marker bawaan browser aman */
 }
 
 .delete-btn {
-  display: none; /* Sembunyi total */
+  display: none;
   position: absolute;
   right: 12px;
   top: 12px;
@@ -91,8 +90,7 @@ details[open] .delete-btn {
 }
 
 .entry-content {
-  /* Padding kiri 20px agar teks isi lurus dengan teks tanggal (melewati panah) */
-  padding: 10px 0 0 5px; 
+  padding: 10px 0 0 5px;
 }
 
 .journal-text {
@@ -101,9 +99,52 @@ details[open] .delete-btn {
   color: #4a4a4a;
 }
 
-/* Memastikan button global tidak mengganggu delete-btn */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.demo-banner {
+  display: flex;
+  align-items: center;
+  background-color: rgba(244, 244, 244, 0.9);
+  border: 1px solid #e0e0e0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  color: #666;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 9999;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.pulse-dot {
+  height: 8px;
+  width: 8px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+.banner-text {
+  letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
 details button:not(.delete-btn) {
-  /* Style untuk button "Generate Reflection" tetap aman */
+  /* Placeholder, for now keep */
 }
 
 .reflection {

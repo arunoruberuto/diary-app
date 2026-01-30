@@ -8,13 +8,22 @@
 <body>
   <div class="container">
     <div class="left">
-      <h2>New Entry</h2>
-      <textarea placeholder="Write your thoughts..."></textarea>
-      <button id="save">Save</button>
+      <h2>今日のできごと</h2>
+      <textarea placeholder="ここにそっと書いてみて。。。"></textarea>
+       <div class="action-bar">
+        <button id="save">残す</button>
+
+        <div id="demo-banner" class="demo-banner">
+          <span class="pulse-dot"></span>
+          <span class="banner-text">
+            SYSTEM_HEALTHY | <span id="instance-id">i-123456789</span>
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="right">
-      <h2>History</h2>
+      <h2>これまでのできごと</h2>
       <div id="history"></div>
     </div>
   </div>
