@@ -1,7 +1,7 @@
 # 1. SG for ALB (Main Gate)
 resource "aws_security_group" "alb_sg" {
   name        = "${var.project_name}-alb-sg"
-  description = "Akses publik ke Load Balancer"
+  description = "Public access for ALB"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -29,7 +29,7 @@ resource "aws_security_group" "alb_sg" {
 # 2. SG for EC2 (Aplikasi)
 resource "aws_security_group" "app_sg" {
   name        = "${var.project_name}-app-sg"
-  description = "Hanya terima traffic dari ALB"
+  description = "Only allow traffic from ALB"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -38,6 +38,14 @@ resource "aws_security_group" "app_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.alb_sg.id] 
   }
+
+  ingress {
+      description = "Allow SSH from anywhere" # Temporary, dont forget to remove after
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
 
   egress {
     from_port   = 0
@@ -50,7 +58,7 @@ resource "aws_security_group" "app_sg" {
 # 3. SG for RDS (Postgres)
 resource "aws_security_group" "rds_sg" {
   name        = "${var.project_name}-rds-sg"
-  description = "Hanya terima traffic dari EC2 APP"
+  description = "Only allow traffic from EC2 App"
   vpc_id      = aws_vpc.main.id
 
   ingress {

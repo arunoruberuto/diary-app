@@ -1,9 +1,7 @@
 name: Deploy Diary App to Singapore
 
 on:
-  push:
-    branches:
-      - main 
+    workflow_dispatch:
 
 jobs:
   deploy:
