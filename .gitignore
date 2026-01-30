@@ -1,3 +1,12 @@
+# Terraform 
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Key
+*.pem
+
 # Node
 node_modules/
 
