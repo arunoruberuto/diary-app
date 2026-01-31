@@ -170,10 +170,15 @@ app.get("/crash", (req, res) => {
 app.get("/heavy-load", (req, res) => {
   console.log("高CPU負荷をシミュレーション中。。");
   res.send("高負荷を生成しています。CloudWatchダッシュボードをご確認ください。");
-  const startTime = Date.now();
-  while (Date.now() - startTime < 120000) { // 2分
-    Math.sqrt(Math.random() * Math.random());
+  let start = Date.now();
+  function heavy() {
+      while (Date.now() - start < 300000) { 
+          Math.random() * Math.random();
+          if (Date.now() % 100 === 0) break; 
+      }
+      if (Date.now() - start < 300000) setTimeout(heavy, 1);
   }
+  heavy();
 });
 
 app.get('/api/instance-info', async (req, res) => {
