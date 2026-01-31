@@ -1,7 +1,9 @@
 name: Deploy Diary App to Singapore
 
 on:
-    workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -34,4 +36,4 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ap-southeast-1
                            
-          aws cloudfront create-invalidation --distribution-id E2C36JZS9AS2AK --paths "/*"
+          aws cloudfront create-invalidation --distribution-id E1V8GOCD78XQ64 --paths "/*"
