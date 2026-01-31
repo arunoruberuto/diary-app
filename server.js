@@ -7,6 +7,8 @@ import path from "path";
 
 const app = express();
 
+let isHealthy = true;
+
 async function getInstanceId() {
   try {
     const tokenRes = await fetch("http://169.254.169.254/latest/api/token", {
@@ -53,7 +55,12 @@ const initDb = async () => {
 };
 initDb();
 
-app.get("/health", (_, res) => res.send("ok"));
+app.get("/health", (_, res) => {
+  if (!isHealthy) {
+    return res.status(500).send("インスタンスが異常になりました。"); 
+  }
+  res.send("ok");
+});
 
 app.get("/entries", async (req, res) => {
   try {
@@ -147,10 +154,26 @@ app.delete("/entries/:id", async (req, res) => {
   }
 });
 
-// Endpoint Crash for simulation #4
+app.get("/hard-crash", (req, res) => {
+  console.log("PM2デモ用：プロセスのハードクラッシュを実行します。");
+  process.exit(1); 
+});
+
+// ASGデモ用 -> crash #1
 app.get("/crash", (req, res) => {
-  console.log("Simulating crash...");
-  process.exit(1);
+  console.log("ASGデモ用に、インスタンスを意図的に異常状態へ移行させました。");
+  isHealthy = false; 
+  res.send("サーバーが異常（Unhealthy）状態になりました。ASGによる終了をお待ちください。");
+});
+
+// エンドポイント：CPU負荷生成
+app.get("/heavy-load", (req, res) => {
+  console.log("高CPU負荷をシミュレーション中。。");
+  res.send("高負荷を生成しています。CloudWatchダッシュボードをご確認ください。");
+  const startTime = Date.now();
+  while (Date.now() - startTime < 120000) { // 2分
+    Math.sqrt(Math.random() * Math.random());
+  }
 });
 
 app.get('/api/instance-info', async (req, res) => {
