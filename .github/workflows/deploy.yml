@@ -36,15 +36,15 @@ jobs:
       - name: Update ASG (Rolling Update)
         run: |
           aws autoscaling start-instance-refresh \
-            --auto-scaling-group-name ${{ secrets.ASG_NAME }} \
+            --auto-scaling-group-name diary-app-asg-instance \
             --preferences '{
               "MinHealthyPercentage": 100,
               "InstanceWarmup": 300
             }'
 
       # temporary
-      - name: Reset Cache CloudFront
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id E1ZEEY2LCOU8IH \
-            --paths "/*"
+      # - name: Reset Cache CloudFront
+      #   run: |
+      #     aws cloudfront create-invalidation \
+      #       --distribution-id E1ZEEY2LCOU8IH \
+      #       --paths "/*"
