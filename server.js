@@ -32,7 +32,9 @@ const db = new Pool({
   connectionString: process.env.DATABASE_URL || "postgres://localhost:5432/diary_db",
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
-const bedrock = new BedrockRuntimeClient({ region: "ap-northeast-1" });
+const bedrock = new BedrockRuntimeClient({ 
+  region: process.env.AWS_REGION || "ap-southeast-1"
+});
 
 app.use(express.json());
 app.use(express.static("public"));
