@@ -1,5 +1,5 @@
 variable "aws_region" {
-  default = "ap-southeast-1" # singapore
+  default = "ap-southeast-1" # Singapore
 }
 
 variable "project_name" {
@@ -8,4 +8,8 @@ variable "project_name" {
 
 variable "vpc_cidr" {
   default = "10.0.0.0/16"
+}
+
+variable "email" {
+  default = "email here"
 }

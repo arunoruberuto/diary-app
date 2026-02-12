@@ -36,7 +36,7 @@ jobs:
       - name: Update ASG (Rolling Update)
         run: |
           aws autoscaling start-instance-refresh \
-            --auto-scaling-group-name terraform-2026021116441303840000000c \
+            --auto-scaling-group-name diary-app-asg-instance \
             --preferences '{
               "MinHealthyPercentage": 100,
               "InstanceWarmup": 300

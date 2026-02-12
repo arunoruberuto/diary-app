@@ -1,4 +1,3 @@
-# 1. Create Load Balancer
 resource "aws_lb" "main_alb" {
   name               = "${var.project_name}-alb"
   internal           = false
@@ -11,9 +10,8 @@ resource "aws_lb" "main_alb" {
   }
 }
 
-# 2. Create Target Group (Daftar tunggu server)
 resource "aws_lb_target_group" "main_tg" {
-  name     = "${var.project_name}-tg-v2"
+  name     = "${var.project_name}-tg"
   port     = 3000
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -22,22 +20,44 @@ resource "aws_lb_target_group" "main_tg" {
     path                = "/health" 
     port                = "3000"
     protocol            = "HTTP"
-    interval            = 15
-    timeout             = 5
+    interval            = 30
+    timeout             = 20
     healthy_threshold   = 4
-    unhealthy_threshold = 2
+    unhealthy_threshold = 10
     matcher             = "200"
   }
+
+  deregistration_delay = 30
 }
 
-# 3. Create Listener (Si tukang dengerin request)
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main_alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "アクセスが拒否されました。CloudFront 経由でアクセスしてください。"
+      status_code  = "403"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "allow_cloudfront" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 1
+
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.main_tg.arn
+  }
+
+  condition {
+    http_header {
+      http_header_name = "X-Custom-Header"
+      values           = [random_password.cf_secret.result]
+    }
   }
 }

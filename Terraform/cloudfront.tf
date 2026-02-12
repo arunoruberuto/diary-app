@@ -9,11 +9,16 @@ resource "aws_cloudfront_distribution" "app_distribution" {
       origin_protocol_policy = "http-only" 
       origin_ssl_protocols   = ["TLSv1.2"]
     }
+
+    custom_header {
+      name  = "X-Custom-Header"
+      value = random_password.cf_secret.result
+    }
   }
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "CDN buat Diary App"
+  comment             = "CDN for Diary App"
   default_root_object = ""
 
   default_cache_behavior {
@@ -28,7 +33,7 @@ resource "aws_cloudfront_distribution" "app_distribution" {
       }
     }
 
-    viewer_protocol_policy = "redirect-to-https" 
+    viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 0
     max_ttl                = 3600
@@ -49,6 +54,3 @@ resource "aws_cloudfront_distribution" "app_distribution" {
   }
 }
 
-output "cloudfront_url" {
-  value = aws_cloudfront_distribution.app_distribution.domain_name
-}

@@ -1,4 +1,3 @@
-# 1. "Container" for Bedrock
 resource "aws_iam_role" "ec2_role" {
   name = "${var.project_name}-ec2-role"
 
@@ -16,20 +15,27 @@ resource "aws_iam_role" "ec2_role" {
   })
 }
 
-# 2. Tempelkan Izin Bedrock (Plus Alpha: Pakai Managed Policy)
 resource "aws_iam_role_policy_attachment" "bedrock_access" {
   role       = aws_iam_role.ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonBedrockFullAccess"
 }
 
-# 3. Tempelkan Izin CloudWatch (Biar log-nya masuk ke Dashboard)
 resource "aws_iam_role_policy_attachment" "cloudwatch_access" {
   role       = aws_iam_role.ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
-# 4. Bikin Instance Profile (Ini yang bakal ditempel ke EC2 nanti)
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${var.project_name}-ec2-profile"
   role = aws_iam_role.ec2_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_managed_core" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "ecr_readonly" {
+  role       = aws_iam_role.ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
