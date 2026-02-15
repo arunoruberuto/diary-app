@@ -1,9 +1,8 @@
-/* --- 1. CORE VARIABLES & BASE --- */
 :root {
   --accent: #7fa88d;
   --bg: #f7f5ef;
   --glass: rgba(255, 255, 255, 0.4);
-  --glass-sidebar: rgba(250, 249, 244, 0.5);
+  --glass-sidebar: rgba(250, 249, 244, 0.6);
   --border: rgba(224, 224, 216, 0.6);
   --text: #2e2e2e;
   --white: #ffffff;
@@ -17,7 +16,7 @@ body {
   overflow-x: hidden;
 }
 
-/* --- 2. AUTH SCREEN --- */
+/* --- AUTH SCREEN --- */
 #auth-screen {
   height: 100vh;
   display: flex;
@@ -34,7 +33,7 @@ body {
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-/* --- 3. HEADER & NAVIGATION --- */
+/* --- HEADER & NAVS --- */
 .main-header {
   position: sticky;
   top: 0;
@@ -72,7 +71,6 @@ body {
   border-radius: 2px;
 }
 
-/* Hamburger to X Animation */
 .hamburger.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
 .hamburger.active span:nth-child(2) { opacity: 0; }
 .hamburger.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
@@ -86,7 +84,7 @@ body {
   border-radius: 20px;
 }
 
-/* --- 4. SIDEBAR & OVERLAY --- */
+/* --- SIDEBAR + oVERLAY --- */
 #sidebar {
   position: fixed;
   left: -300px; 
@@ -146,7 +144,7 @@ body {
   transform: translateX(5px);
 }
 
-/* --- 5. MAIN CONTAINER LAYOUT --- */
+/* --- MAIN CONTAINER --- */
 .container {
   display: flex;
   height: calc(100vh - 60px);
@@ -168,7 +166,8 @@ body {
   box-sizing: border-box;
 }
 
-/* --- 6. FORM ELEMENTS --- */
+/* --- ENTRIES --- */
+
 textarea {
   width: 100%;
   height: 60%;
@@ -207,7 +206,7 @@ button {
 
 button:hover { opacity: 0.9; transform: translateY(-1px); }
 
-/* --- 7. JOURNAL ENTRIES (HISTORY) --- */
+/* --- HISTORY SECTION --- */
 details {
   background: var(--white);
   border-radius: 12px;
@@ -260,7 +259,7 @@ details[open] .delete-btn { display: block; }
   border-left: 4px solid var(--accent);
 }
 
-/* --- 8. SYSTEM BANNER --- */
+/* --- LIL BANNER --- */
 .demo-banner {
   display: flex;
   align-items: center;
@@ -289,47 +288,36 @@ details[open] .delete-btn { display: block; }
 
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-/* --- RESPONSIVE DESIGN RE-ENGINEERED --- */
+/* --- RESPONSIVE DESIGN REDONE --- */
 
 @media (max-width: 768px) {
-    /* 1. Layout Atas-Bawah yang Lebih Rapih */
     .container {
         flex-direction: column; 
         height: auto; 
         overflow-y: visible;
     }
-
-    /* 2. Penyesuaian Lebar & Padding */
     .left, .right {
         width: 100%; 
         border-right: none; 
         padding: 20px; 
         box-sizing: border-box;
     }
-
     .left {
         border-bottom: 1px solid var(--border);
         background: #faf9f4;
         position: relative;
     }
-
-    /* 3. Textarea yang Proporsional di Layar Kecil */
     textarea {
         height: 250px; 
-        font-size: 16px; /* Cegah auto-zoom di iOS */
+        font-size: 16px; 
     }
-
-    /* 4. Sidebar Tetap Konsisten tapi Lebih Lebar */
     #sidebar {
-        width: 70%; /* Hampir full screen di HP biar puas */
+        width: 70%; 
         left: -70%; 
     }
-    
     #sidebar.active {
         transform: translateX(100%);
     }
-
-    /* 5. Header yang Lebih Compact */
     .main-header {
         padding: 8px 15px;
     }
@@ -341,19 +329,15 @@ details[open] .delete-btn { display: block; }
         overflow: hidden;
         text-overflow: ellipsis;
     }
-
-    /* 6. Action Bar di HP */
     .action-bar {
         display: flex;
         justify-content: stretch;
     }
 
     #save {
-        width: 100%; /* Tombol gede biar gampang dipencet */
+        width: 100%; 
         padding: 16px;
     }
-
-    /* 7. Banner Health Check Biar Gak Ganggu UI */
     .demo-banner {
         font-size: 9px;
         padding: 4px 10px;

@@ -3,11 +3,10 @@ const saveBtn = document.querySelector("#save");
 const history = document.querySelector("#history");
 let authConfig = {};
 
-// --- 1. CORE AUTH (JALAN DULUAN) ---
+// --- CORE AUTH ---
 function getAndSaveToken() {
     const hash = window.location.hash;
     if (hash && hash.includes("id_token=")) {
-        // Pake URLSearchParams biar gak ribet split-split manual yang bikin crash
         const params = new URLSearchParams(hash.substring(1));
         const token = params.get("id_token");
         if (token) {
@@ -37,13 +36,13 @@ function updateAuthUI() {
     appContent.style.display = "none";
 }
 
-// --- 2. INITIALIZATION ---
+// --- INIT ---
 async function initApp() {
-    // A. Urus token dulu biar gak loop
+    // FIX 1 LOAD TOKEN FIRST
     getAndSaveToken();
     updateAuthUI();
 
-    // B. Baru ambil config (Metadata dll belakangan, jangan sampe nge-block UI)
+    // THEN LOAD CONFIG
     try {
         const [configRes, infoRes] = await Promise.all([
             fetch('/api/config').catch(() => null),
@@ -64,7 +63,7 @@ async function initApp() {
 
 document.addEventListener("DOMContentLoaded", initApp);
 
-// --- 3. HELPER FUNCTIONS ---
+// --- HELPER FUNCTIONS ---
 function login() {
     if (!authConfig.cognitoDomain) return alert("Sabar, sistem lagi booting...");
     const domain = authConfig.cognitoDomain; 
@@ -96,7 +95,7 @@ function toggleMenu() {
     hamburger.classList.toggle('active', isActive);
 }
 
-// --- 4. APP LOGIC (Entries & Reflection) ---
+// --- APP LOGIC ---
 textarea.oninput = () => {
     localStorage.setItem("draft_entry", textarea.value);
 };

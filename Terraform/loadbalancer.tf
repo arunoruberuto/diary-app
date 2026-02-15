@@ -17,7 +17,7 @@ resource "aws_lb_target_group" "main_tg" {
   vpc_id   = aws_vpc.main.id
 
   health_check {
-    path                = "/health" 
+    path                = "/health"
     port                = "3000"
     protocol            = "HTTP"
     interval            = 30

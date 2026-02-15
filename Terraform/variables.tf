@@ -11,5 +11,5 @@ variable "vpc_cidr" {
 }
 
 variable "email" {
-  default = "email here"
+  default = "arunoruberuto@gmail.com"
 }

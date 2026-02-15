@@ -1,13 +1,13 @@
 resource "aws_security_group" "alb_sg" {
   name        = "${var.project_name}-alb-sg"
-  description = "ロードバランサーへのパブリックアクセスを許可"
+  description = "Allow public access to load balancer"
   vpc_id      = aws_vpc.main.id
 
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] 
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -27,14 +27,14 @@ resource "aws_security_group" "alb_sg" {
 
 resource "aws_security_group" "app_sg" {
   name        = "${var.project_name}-app-sg"
-  description = "ALBからのトラフィックのみ受信"
+  description = "Only receive traffic from ALB"
   vpc_id      = aws_vpc.main.id
 
   ingress {
     from_port       = 3000
     to_port         = 3000
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id] 
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   egress {
@@ -47,7 +47,7 @@ resource "aws_security_group" "app_sg" {
 
 resource "aws_security_group" "rds_sg" {
   name        = "${var.project_name}-rds-sg"
-  description = "EC2（APP）からのトラフィックのみ受信"
+  description = "Only receive traffic from EC2 APP"
   vpc_id      = aws_vpc.main.id
 
   ingress {

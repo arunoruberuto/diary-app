@@ -21,7 +21,7 @@ resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "ap-southeast-1a"
-  map_public_ip_on_launch = true 
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "${var.project_name}-public-1a"
@@ -42,7 +42,7 @@ resource "aws_subnet" "public_2" {
 # 7. Private Subnet 1 (AZ 1a) for RDS
 resource "aws_subnet" "private_1" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.11.0/24" 
+  cidr_block        = "10.0.11.0/24"
   availability_zone = "ap-southeast-1a"
 
   tags = {
@@ -144,7 +144,7 @@ resource "aws_route_table" "private_rt" {
 
   route {
     cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main_nat.id 
+    nat_gateway_id = aws_nat_gateway.main_nat.id
   }
 
   tags = {

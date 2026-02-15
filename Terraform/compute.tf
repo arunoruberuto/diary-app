@@ -48,6 +48,9 @@ resource "aws_launch_template" "app_lt" {
       -e DATABASE_URL='postgresql://${aws_db_instance.postgres.username}:${aws_db_instance.postgres.password}@${aws_db_instance.postgres.endpoint}/${aws_db_instance.postgres.db_name}' \
       -e AWS_REGION="${var.aws_region}" \
       -e NODE_ENV="production" \
+      -e COGNITO_USER_POOL_ID="${aws_cognito_user_pool.diary_app.id}" \
+      -e COGNITO_APP_CLIENT_ID="${aws_cognito_user_pool_client.diary_app_client.id}" \
+      -e RANDOM_SUFFIX="${random_id.suffix.hex}" \
       ${aws_ecr_repository.app_repo.repository_url}:latest
   EOF
   )

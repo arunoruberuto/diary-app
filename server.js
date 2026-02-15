@@ -41,12 +41,16 @@ const bedrock = new BedrockRuntimeClient({
 app.use(express.json());
 app.use(express.static("public"));
 
+// JWKSクライアントの設定
+
 const jwksUrl = `https://cognito-idp.${process.env.AWS_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}/.well-known/jwks.json`;
 const client = jwksClient({
   jwksUri: jwksUrl,
   cache: true,      
   rateLimit: true    
 });
+
+// MIDDLE WEAR
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;

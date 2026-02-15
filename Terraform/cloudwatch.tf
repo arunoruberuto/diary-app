@@ -11,17 +11,17 @@ resource "aws_cloudwatch_dashboard" "main_dashboard" {
           period  = 60, stat = "Average", region = var.aws_region, title = "CPU使用率 (EC2平均)"
         }
       },
-      # 2. 正常なホスト数 (Healthy Hosts - Pantau jumlah server yang aktif)
+      # 2. 正常なホスト数 (Healthy Hosts)
       {
         type = "metric", x = 8, y = 0, width = 8, height = 6
         properties = {
           metrics = [
             ["AWS/ApplicationELB", "HealthyHostCount", "TargetGroup", "${aws_lb_target_group.main_tg.arn_suffix}", "LoadBalancer", "${aws_lb.main_alb.arn_suffix}"]
           ]
-          period = 60
-          stat   = "Average" 
-          region = var.aws_region
-          title  = "正常なサーバー数 (Healthy)"
+          period  = 60
+          stat    = "Average"
+          region  = var.aws_region
+          title   = "正常なサーバー数 (Healthy)"
           view    = "timeSeries"
           stacked = false
           yAxis = {
@@ -55,6 +55,22 @@ resource "aws_cloudwatch_dashboard" "main_dashboard" {
         properties = {
           metrics = [["AWS/ApplicationELB", "HTTPCode_Target_5XX_Count", "LoadBalancer", "${aws_lb.main_alb.arn_suffix}"]]
           period  = 60, stat = "Sum", region = var.aws_region, title = "❌ システムエラー発生数 (5XX)"
+        }
+      },
+      # 6. 新規ユーザー登録 (SignUp Success)
+      {
+        type = "metric", x = 0, y = 12, width = 24, height = 6
+        properties = {
+          metrics = [
+            ["AWS/Cognito", "SignUpSuccesses", "UserPoolId", "${aws_cognito_user_pool.diary_app.id}"],
+            [{ "expression" = "SUM(METRICS())", "label" = "累積ユーザー数" }]
+          ]
+          period  = 300
+          stat    = "Sum"
+          region  = var.aws_region
+          title   = "新規登録ユーザー"
+          view    = "timeSeries"
+          stacked = false
         }
       }
     ]
