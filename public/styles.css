@@ -1,208 +1,23 @@
-body {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f7f5ef;
-  margin: 0;
-  color: #2e2e2e;
-}
-
-.container {
-  display: flex;
-  height: 100vh;
-}
-
-.left, .right {
-  padding: 24px;
-}
-
-.left {
-  width: 50%;
-  background: #faf9f4;
-  border-right: 1px solid #e0e0d8;
-}
-
-.right {
-  width: 50%;
-  overflow-y: auto;
-}
-
-textarea {
-  width: 95%;
-  height: 60%;
-  padding: 16px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #d4d4c8;
-}
-
-button {
-  margin-top: 12px;
-  padding: 10px 16px;
-  background: #7fa88d;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-details {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-  position: relative;
-}
-.entry-content {
-  position: relative;
-  padding-top: 10px;
-}
-
-summary {
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
-  padding: 4px 0;
-}
-
-.delete-btn {
-  display: none;
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  background: transparent;
-  color: #a0a096;
-  border: none;
-  font-size: 26px;
-  line-height: 1;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  transition: all 0.2s;
-  z-index: 10;
-}
-
-details[open] .delete-btn {
-  display: block;
-}
-
-.delete-btn:hover {
-  color: #e63946;
-  transform: scale(1.2);
-}
-
-.entry-content {
-  padding: 10px 0 0 5px;
-}
-
-.journal-text {
-  margin: 0 0 16px 0;
-  line-height: 1.5;
-  color: #4a4a4a;
-}
-
-.action-bar {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.demo-banner {
-  display: flex;
-  align-items: center;
-  background-color: rgba(244, 244, 244, 0.9);
-  border: 1px solid #e0e0e0;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 11px;
-  color: #666;
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 9999;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.pulse-dot {
-  height: 8px;
-  width: 8px;
-  background-color: #4caf50;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 8px;
-  animation: pulse 2s infinite;
-}
-
-.banner-text {
-  letter-spacing: 0.5px;
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
-}
-
-details button:not(.delete-btn) {
-  /* Placeholder, for now keep */
-}
-
-.reflection {
-  margin-top: 12px;
-  padding: 12px;
-  background: #eef3ee;
-  border-radius: 6px;
-}
-
-/* --- RESPONSIVE DESIGN --- */
-
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column; 
-    height: auto; 
-  }
-
-  .left, .right {
-    width: 100%; 
-    border-right: none; 
-    padding: 16px; 
-  }
-
-  .left {
-    border-bottom: 1px solid #e0e0d8;
-    height: auto;
-    min-height: 400px; 
-  }
-
-  textarea {
-    width: 100%; 
-    height: 200px; 
-    box-sizing: border-box;
-  }
-
-  .demo-banner {
-    position: relative; 
-    bottom: 0;
-    left: 0;
-    margin-top: 20px;
-    width: fit-content;
-  }
-
-  .action-bar {
-    flex-direction: column; 
-    align-items: flex-start;
-  }
-}
-
-/* --- TETEP PAKE CSS ASLI LO DI ATAS (Gue tambahin yang baru di bawah) --- */
-
+/* --- 1. CORE VARIABLES & BASE --- */
 :root {
   --accent: #7fa88d;
   --bg: #f7f5ef;
-  --glass: rgba(250, 249, 244, 0.85);
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-sidebar: rgba(250, 249, 244, 0.85);
+  --border: rgba(224, 224, 216, 0.6);
+  --text: #2e2e2e;
+  --white: #ffffff;
 }
 
-/* AUTH SCREEN */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  margin: 0;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* --- 2. AUTH SCREEN --- */
 #auth-screen {
   height: 100vh;
   display: flex;
@@ -210,90 +25,336 @@ details button:not(.delete-btn) {
   align-items: center;
   background: var(--bg);
 }
+
 .auth-card {
   text-align: center;
   padding: 40px;
-  background: white;
+  background: var(--white);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-/* HEADER BAR */
+/* --- 3. HEADER & NAVIGATION --- */
 .main-header {
   position: sticky;
   top: 0;
   z-index: 1000;
   background: var(--glass);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  border-bottom: 1px solid #e0e0d8;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  height: 60px;
+  box-sizing: border-box;
 }
 
 .hamburger {
   background: none;
   border: none;
-  color: #2e2e2e;
-  font-size: 24px;
   cursor: pointer;
-  padding: 0;
-  margin: 0;
+  padding: 10px;
+  z-index: 10002;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+
+.hamburger span {
+  display: block;
+  width: 25px;
+  height: 2px;
+  background-color: var(--text);
+  transition: all 0.3s ease-in-out;
+  border-radius: 2px;
+}
+
+/* Hamburger to X Animation */
+.hamburger.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
 .user-info {
   font-size: 14px;
   font-weight: 500;
   color: #4a4a4a;
   background: rgba(127, 168, 141, 0.1); 
-  padding: 4px 12px;
-  border-radius: 15px;
+  padding: 6px 14px;
+  border-radius: 20px;
 }
 
-/* SIDEBAR SYSTEM */
+/* --- 4. SIDEBAR & OVERLAY --- */
 #sidebar {
   position: fixed;
-  left: -280px;
+  left: -300px; 
   top: 0;
-  width: 250px;
+  width: 280px;
   height: 100%;
-  background: white;
+  background: var(--glass-sidebar);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   z-index: 10001;
-  transition: 0.3s ease-in-out;
-  padding: 20px;
-  box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+  transition: transform 0.4s cubic-bezier(0.77,0.2,0.05,1.0);
+  padding: 80px 24px 24px 24px;
+  box-shadow: 10px 0 30px rgba(0,0,0,0.03);
+  box-sizing: border-box;
+  border-right: 1px solid var(--border);
 }
 
-#sidebar.active {
-  left: 0;
-}
+#sidebar.active { transform: translateX(300px); }
 
 #overlay {
   position: fixed;
-  display: none;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.1);
-  backdrop-filter: blur(2px);
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s ease;
   z-index: 10000;
 }
 
+#overlay.active { opacity: 1; visibility: visible; }
+
 .sidebar-header {
-  font-weight: bold;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 11px;
   color: #aaa;
   margin-bottom: 20px;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
 }
 
 .sidebar-item {
-  padding: 15px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 14px 18px;
+  margin: 4px 0;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 15px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .sidebar-item:hover {
+  background: rgba(127, 168, 141, 0.15);
   color: var(--accent);
+  transform: translateX(5px);
+}
+
+/* --- 5. MAIN CONTAINER LAYOUT --- */
+.container {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+.left {
+  width: 45%;
+  background: #faf9f4;
+  border-right: 1px solid var(--border);
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.right {
+  width: 55%;
+  padding: 32px;
+  overflow-y: auto;
+  background: var(--bg);
+  box-sizing: border-box;
+}
+
+/* --- 6. FORM ELEMENTS --- */
+textarea {
+  width: 100%;
+  height: 60%;
+  min-height: 300px;
+  padding: 20px;
+  font-size: 17px;
+  line-height: 1.6;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+  resize: none;
+  box-sizing: border-box;
+  transition: border 0.3s;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+button {
+  margin-top: 12px;
+  padding: 12px 24px;
+  background: var(--accent);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+/* --- 7. JOURNAL ENTRIES (HISTORY) --- */
+details {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  border: 1px solid var(--border);
+}
+
+summary {
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  padding: 4px 0;
+  list-style: none;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+.delete-btn {
+  display: none;
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  background: transparent;
+  color: #a0a096;
+  border: none;
+  font-size: 24px;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+
+details[open] .delete-btn { display: block; }
+.delete-btn:hover { color: #e63946; transform: scale(1.1); }
+
+.journal-text {
+  margin: 15px 0;
+  line-height: 1.6;
+  color: #4a4a4a;
+}
+
+.reflection {
+  margin-top: 15px;
+  padding: 16px;
+  background: #eef3ee;
+  border-radius: 10px;
+  border-left: 4px solid var(--accent);
+}
+
+/* --- 8. SYSTEM BANNER --- */
+.demo-banner {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-family: monospace;
+  font-size: 11px;
+  color: #666;
+  position: fixed;
+  bottom: 20px;
+  right: 20px; /* Pindah ke kanan biar gak tabrakan sama menu di mobile */
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.pulse-dot {
+  height: 8px; width: 8px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  margin-right: 10px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+/* --- RESPONSIVE DESIGN RE-ENGINEERED --- */
+
+@media (max-width: 768px) {
+    /* 1. Layout Atas-Bawah yang Lebih Rapih */
+    .container {
+        flex-direction: column; 
+        height: auto; 
+        overflow-y: visible;
+    }
+
+    /* 2. Penyesuaian Lebar & Padding */
+    .left, .right {
+        width: 100%; 
+        border-right: none; 
+        padding: 20px; 
+        box-sizing: border-box;
+    }
+
+    .left {
+        border-bottom: 1px solid var(--border);
+        background: #faf9f4;
+        position: relative;
+    }
+
+    /* 3. Textarea yang Proporsional di Layar Kecil */
+    textarea {
+        height: 250px; 
+        font-size: 16px; /* Cegah auto-zoom di iOS */
+    }
+
+    /* 4. Sidebar Tetap Konsisten tapi Lebih Lebar */
+    #sidebar {
+        width: 85%; /* Hampir full screen di HP biar puas */
+        left: -90%; 
+    }
+    
+    #sidebar.active {
+        transform: translateX(90%);
+    }
+
+    /* 5. Header yang Lebih Compact */
+    .main-header {
+        padding: 8px 15px;
+    }
+
+    .user-info {
+        font-size: 12px;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 6. Action Bar di HP */
+    .action-bar {
+        display: flex;
+        justify-content: stretch;
+    }
+
+    #save {
+        width: 100%; /* Tombol gede biar gampang dipencet */
+        padding: 16px;
+    }
+
+    /* 7. Banner Health Check Biar Gak Ganggu UI */
+    .demo-banner {
+        font-size: 9px;
+        padding: 4px 10px;
+        bottom: 10px;
+        left: 10px;
+        opacity: 0.8;
+    }
 }

@@ -89,8 +89,11 @@ function logout() {
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
+    const hamburger = document.getElementById('hamburger-btn');
+    
     const isActive = sidebar.classList.toggle('active');
-    overlay.style.display = isActive ? 'block' : 'none';
+    overlay.classList.toggle('active', isActive);
+    hamburger.classList.toggle('active', isActive);
 }
 
 // --- 4. APP LOGIC (Entries & Reflection) ---

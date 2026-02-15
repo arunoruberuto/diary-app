@@ -9,9 +9,13 @@
 <body>
 
   <div id="sidebar">
-    <div class="sidebar-header">MENU</div>
-    <div class="sidebar-item" onclick="location.reload()">Refresh App</div>
-    <div class="sidebar-item" onclick="logout()" style="color: #e63946;">Logout</div>
+    <div class="sidebar-header">Explore</div>
+    <div class="sidebar-item" onclick="location.reload()">
+      <span>🔄</span> Refresh App
+    </div>
+    <div class="sidebar-item" onclick="logout()" style="color: #e63946;">
+      <span>🚪</span> Logout
+    </div>
   </div>
   <div id="overlay" onclick="toggleMenu()"></div>
 
@@ -25,7 +29,11 @@
 
   <div id="app-content" style="display: none;">
     <header class="main-header">
-      <button class="hamburger" onclick="toggleMenu()">☰</button>
+      <button class="hamburger" id="hamburger-btn" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <div id="current-user" class="user-info"></div>
     </header>
 
