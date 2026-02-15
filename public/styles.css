@@ -2,8 +2,8 @@
 :root {
   --accent: #7fa88d;
   --bg: #f7f5ef;
-  --glass: rgba(255, 255, 255, 0.7);
-  --glass-sidebar: rgba(250, 249, 244, 0.85);
+  --glass: rgba(255, 255, 255, 0.4);
+  --glass-sidebar: rgba(250, 249, 244, 0.5);
   --border: rgba(224, 224, 216, 0.6);
   --text: #2e2e2e;
   --white: #ffffff;
@@ -59,6 +59,7 @@ body {
   z-index: 10002;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 6px;
 }
 
@@ -152,7 +153,7 @@ body {
 }
 
 .left {
-  width: 45%;
+  width: 50%;
   background: #faf9f4;
   border-right: 1px solid var(--border);
   padding: 32px;
@@ -160,7 +161,7 @@ body {
 }
 
 .right {
-  width: 55%;
+  width: 50%;
   padding: 32px;
   overflow-y: auto;
   background: var(--bg);
@@ -265,12 +266,12 @@ details[open] .delete-btn { display: block; }
   border: 1px solid var(--border);
   padding: 8px 16px;
   border-radius: 25px;
-  font-family: monospace;
+  font-family: 'Courier New', Courier, monospace;
   font-size: 11px;
   color: #666;
   position: fixed;
   bottom: 20px;
-  right: 20px; /* Pindah ke kanan biar gak tabrakan sama menu di mobile */
+  right: 20px; 
   z-index: 9999;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
