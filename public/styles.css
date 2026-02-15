@@ -191,7 +191,6 @@ textarea:focus {
 }
 
 button {
-  margin-top: 12px;
   padding: 12px 24px;
   background: var(--accent);
   color: var(--white);
@@ -200,6 +199,10 @@ button {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
+}
+
+#save {
+    margin-top: 12px;
 }
 
 button:hover { opacity: 0.9; transform: translateY(-1px); }
@@ -318,12 +321,12 @@ details[open] .delete-btn { display: block; }
 
     /* 4. Sidebar Tetap Konsisten tapi Lebih Lebar */
     #sidebar {
-        width: 85%; /* Hampir full screen di HP biar puas */
-        left: -90%; 
+        width: 70%; /* Hampir full screen di HP biar puas */
+        left: -70%; 
     }
     
     #sidebar.active {
-        transform: translateX(90%);
+        transform: translateX(100%);
     }
 
     /* 5. Header yang Lebih Compact */
