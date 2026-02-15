@@ -6,33 +6,41 @@ let authConfig = {};
 
 // --- 1. INITIALIZATION LOGIC (Gabungan & Anti-Race Condition) ---
 async function initApp() {
-    // A. Ambil Token dari URL (kalo ada)
+    // 1. Ambil Token dari URL dengan pengecekan aman (Fix Error split)
     const hash = window.location.hash;
-    if (hash.includes("id_token=")) {
-        const token = hash.split("&").find(s => s.startsWith("id_token=")).split("=")[1];
-        localStorage.setItem("jwt", token);
-        window.location.hash = ""; 
+    if (hash && hash.includes("id_token=")) {
+        try {
+            const tokenPart = hash.split("&").find(s => s.startsWith("id_token="));
+            if (tokenPart) {
+                const token = tokenPart.split("=")[1];
+                localStorage.setItem("jwt", token);
+                window.location.hash = ""; 
+            }
+        } catch (err) {
+            console.error("Gagal parsing token:", err);
+        }
     }
 
     try {
-        // B. Tarik Config Auth & Info Instance secara berurutan
+        // 2. Ambil Config & Metadata
         const [configRes, infoRes] = await Promise.all([
             fetch('/api/config'),
             fetch('/api/instance-info')
         ]);
 
+        if (!configRes.ok) throw new Error("Server config error");
+
         authConfig = await configRes.json();
         const instanceData = await infoRes.json();
 
-        // C. Update UI Metadata
         const idElement = document.getElementById('instance-id');
         if (idElement) idElement.innerText = instanceData.instanceId;
 
-        // D. Update UI Auth
         updateAuthUI();
-
     } catch (e) {
         console.error("Gagal inisialisasi aplikasi:", e);
+        // Alert ini bantu biar kita tau kalau fetch-nya gagal
+        alert("Gagal konek ke backend. Coba refresh lagi.");
     }
 }
 
