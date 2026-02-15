@@ -1,4 +1,6 @@
+import jwksClient from 'jwks-rsa';
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import jwt from "jsonwebtoken";
 import "dotenv/config";
 import express from "express";
 import pg from "pg";
@@ -39,11 +41,39 @@ const bedrock = new BedrockRuntimeClient({
 app.use(express.json());
 app.use(express.static("public"));
 
+const jwksUrl = `https://cognito-idp.${process.env.AWS_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}/.well-known/jwks.json`;
+const client = jwksClient({
+  jwksUri: jwksUrl,
+  cache: true,      
+  rateLimit: true    
+});
+
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "Unauthorized" });
+
+  const token = authHeader.replace("Bearer ", "");
+  function getKey(header, callback) {
+    client.getSigningKey(header.kid, (err, key) => {
+      if (err) return callback(err);
+      const signingKey = key.getPublicKey();
+      callback(null, signingKey);
+    });
+  }
+
+  jwt.verify(token, getKey, {}, (err, decoded) => {
+    if (err) return res.status(401).json({ error: "Invalid token" });
+    req.user = { id: decoded.sub };
+    next();
+  });
+}
+
 const initDb = async () => {
   try {
     await db.query(`
       CREATE TABLE IF NOT EXISTS entries (
         id UUID PRIMARY KEY,
+        user_id TEXT NOT NULL,
         content TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL,
         mood TEXT,
@@ -64,16 +94,19 @@ app.get("/health", (_, res) => {
   res.send("ok");
 });
 
-app.get("/entries", async (req, res) => {
+app.get("/entries", authMiddleware, async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM entries ORDER BY created_at DESC");
+    const result = await db.query(
+      "SELECT * FROM entries WHERE user_id = $1 ORDER BY created_at DESC", 
+      [req.user.id]
+    );
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post("/entries", async (req, res) => {
+app.post("/entries", authMiddleware, async (req, res) => {
   const { content } = req.body;
   const entry = {
     id: randomUUID(),
@@ -83,8 +116,8 @@ app.post("/entries", async (req, res) => {
 
   try {
     await db.query(
-      `INSERT INTO entries (id, content, created_at) VALUES ($1, $2, $3)`,
-      [entry.id, entry.content, entry.created_at]
+      `INSERT INTO entries (id, user_id, content, created_at) VALUES ($1, $2, $3, $4)`,
+      [entry.id, req.user.id, entry.content, entry.created_at]
     );
     res.json(entry);
   } catch (err) {
@@ -92,9 +125,12 @@ app.post("/entries", async (req, res) => {
   }
 });
 
-app.post("/entries/:id/reflection", async (req, res) => {
+app.post("/entries/:id/reflection", authMiddleware, async (req, res) => {
   try {
-    const entryResult = await db.query("SELECT content FROM entries WHERE id = $1", [req.params.id]);
+    const entryResult = await db.query(
+      "SELECT content FROM entries WHERE id = $1 AND user_id = $2", 
+      [req.params.id, req.user.id]
+    );
     if (entryResult.rows.length === 0) return res.status(404).send("Entry not found");
     const userContent = entryResult.rows[0].content;
 
@@ -136,8 +172,8 @@ CRITICAL FORMAT: Respond ONLY in this format:
 
     // db入力#3
     await db.query(
-      `UPDATE entries SET mood=$1, reflection=$2 WHERE id=$3`,
-      [moodResult, reflectionResult, req.params.id]
+      `UPDATE entries SET mood=$1, reflection=$2 WHERE id=$3 AND user_id = $4`,
+      [moodResult, reflectionResult, req.params.id, req.user.id]
     );
 
     res.json({ mood: moodResult, text: reflectionResult });
@@ -147,9 +183,11 @@ CRITICAL FORMAT: Respond ONLY in this format:
   }
 });
 
-app.delete("/entries/:id", async (req, res) => {
+app.delete("/entries/:id", authMiddleware, async (req, res) => {
   try {
-    await db.query("DELETE FROM entries WHERE id = $1", [req.params.id]);
+    await db.query("DELETE FROM entries WHERE id = $1 AND user_id = $2", 
+      [req.params.id, req.user.id]
+    );
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -183,9 +221,17 @@ app.get("/heavy-load", (req, res) => {
   heavy();
 });
 
+app.get('/api/config', (req, res) => {
+  res.json({
+    cognitoClientId: process.env.COGNITO_APP_CLIENT_ID,
+    cognitoDomain: `diary-app-${process.env.RANDOM_SUFFIX}.auth.ap-southeast-1.amazoncognito.com`,
+    region: process.env.AWS_REGION
+  });
+});
+
 app.get('/api/instance-info', async (req, res) => {
-  const id = await getInstanceId();
-  res.json({ instanceId: id });
+  const instanceId = await getInstanceId();
+  res.json({ instanceId });
 });
 
 const PORT = process.env.PORT || 3000;

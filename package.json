@@ -5,6 +5,8 @@
     "@aws-sdk/client-bedrock-runtime": "^3.978.0",
     "dotenv": "^17.2.3",
     "express": "^4.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "jwks-rsa": "^3.2.2",
     "pg": "^8.17.2"
   }
 }
