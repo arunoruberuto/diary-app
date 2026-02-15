@@ -1,76 +1,76 @@
 const textarea = document.querySelector("textarea");
 const saveBtn = document.querySelector("#save");
 const history = document.querySelector("#history");
-
 let authConfig = {};
 
-// --- 1. INITIALIZATION LOGIC (Gabungan & Anti-Race Condition) ---
-async function initApp() {
-    // 1. Ambil Token dari URL dengan pengecekan aman (Fix Error split)
+// --- 1. CORE AUTH (JALAN DULUAN) ---
+function getAndSaveToken() {
     const hash = window.location.hash;
     if (hash && hash.includes("id_token=")) {
-        try {
-            const tokenPart = hash.split("&").find(s => s.startsWith("id_token="));
-            if (tokenPart) {
-                const token = tokenPart.split("=")[1];
-                localStorage.setItem("jwt", token);
-                window.location.hash = ""; 
-            }
-        } catch (err) {
-            console.error("Gagal parsing token:", err);
+        // Pake URLSearchParams biar gak ribet split-split manual yang bikin crash
+        const params = new URLSearchParams(hash.substring(1));
+        const token = params.get("id_token");
+        if (token) {
+            localStorage.setItem("jwt", token);
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
-    }
-
-    try {
-        // 2. Ambil Config & Metadata
-        const [configRes, infoRes] = await Promise.all([
-            fetch('/api/config'),
-            fetch('/api/instance-info')
-        ]);
-
-        if (!configRes.ok) throw new Error("Server config error");
-
-        authConfig = await configRes.json();
-        const instanceData = await infoRes.json();
-
-        const idElement = document.getElementById('instance-id');
-        if (idElement) idElement.innerText = instanceData.instanceId;
-
-        updateAuthUI();
-    } catch (e) {
-        console.error("Gagal inisialisasi aplikasi:", e);
-        // Alert ini bantu biar kita tau kalau fetch-nya gagal
-        alert("Gagal konek ke backend. Coba refresh lagi.");
     }
 }
 
-// Jalankan initApp begitu halaman siap
-document.addEventListener("DOMContentLoaded", () => {
-    initApp();
-    
-    // Draft logic
-    const savedDraft = localStorage.getItem("draft_entry");
-    if (savedDraft) textarea.value = savedDraft;
-});
+function updateAuthUI() {
+    const token = localStorage.getItem("jwt");
+    const authScreen = document.getElementById("auth-screen");
+    const appContent = document.getElementById("app-content");
 
-// --- 2. AUTH FUNCTIONS ---
-function login() {
-    // Validasi biar gak nembak URL 'undefined'
-    if (!authConfig.cognitoDomain || !authConfig.cognitoClientId) {
-        alert("Config belum siap, tunggu sebentar atau refresh halaman.");
-        return;
+    if (token) {
+        const payload = parseJwt(token);
+        if (payload) {
+            const username = payload["cognito:username"] || payload.email || "User";
+            document.getElementById("current-user").innerText = "Welcome, " + username;
+            authScreen.style.display = "none";
+            appContent.style.display = "block";
+            loadEntries();
+            return;
+        }
     }
+    authScreen.style.display = "flex";
+    appContent.style.display = "none";
+}
 
+// --- 2. INITIALIZATION ---
+async function initApp() {
+    // A. Urus token dulu biar gak loop
+    getAndSaveToken();
+    updateAuthUI();
+
+    // B. Baru ambil config (Metadata dll belakangan, jangan sampe nge-block UI)
+    try {
+        const [configRes, infoRes] = await Promise.all([
+            fetch('/api/config').catch(() => null),
+            fetch('/api/instance-info').catch(() => null)
+        ]);
+
+        if (configRes && configRes.ok) authConfig = await configRes.json();
+        
+        if (infoRes && infoRes.ok) {
+            const instanceData = await infoRes.json();
+            const idElement = document.getElementById('instance-id');
+            if (idElement) idElement.innerText = instanceData.instanceId;
+        }
+    } catch (e) {
+        console.warn("Background fetch failed, but app still usable.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", initApp);
+
+// --- 3. HELPER FUNCTIONS ---
+function login() {
+    if (!authConfig.cognitoDomain) return alert("Sabar, sistem lagi booting...");
     const domain = authConfig.cognitoDomain; 
     const clientId = authConfig.cognitoClientId;
     const redirectUri = encodeURIComponent(window.location.origin);
-    
     window.location.href = `https://${domain}/login?client_id=${clientId}&response_type=token&scope=email+openid&redirect_uri=${redirectUri}`;
-}
-
-function logout() {
-    localStorage.clear();
-    location.reload();
 }
 
 function parseJwt(token) {
@@ -81,26 +81,11 @@ function parseJwt(token) {
     } catch (e) { return null; }
 }
 
-function updateAuthUI() {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-        const payload = parseJwt(token);
-        // Cek apakah token masih berlaku (opsional tapi bagus)
-        if (payload) {
-            const username = payload["cognito:username"] || payload.sub.substring(0, 8);
-            document.getElementById("current-user").innerText = "Welcome, " + username;
-            document.getElementById("auth-screen").style.display = "none";
-            document.getElementById("app-content").style.display = "block";
-            
-            loadEntries();
-            return;
-        }
-    }
-    document.getElementById("auth-screen").style.display = "block";
-    document.getElementById("app-content").style.display = "none";
+function logout() {
+    localStorage.clear();
+    window.location.href = window.location.origin;
 }
 
-// --- 3. UI HELPERS ---
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
