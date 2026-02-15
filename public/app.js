@@ -4,10 +4,9 @@ const history = document.querySelector("#history");
 
 let authConfig = {};
 
-// 1. Ambil config dari server pas awal load
+// --- 1. INITIALIZATION LOGIC (Gabungan & Anti-Race Condition) ---
 async function initApp() {
-
-    // --- 1. INITIALIZATION LOGIC ---
+    // A. Ambil Token dari URL (kalo ada)
     const hash = window.location.hash;
     if (hash.includes("id_token=")) {
         const token = hash.split("&").find(s => s.startsWith("id_token=")).split("=")[1];
@@ -16,16 +15,44 @@ async function initApp() {
     }
 
     try {
-        const res = await fetch('/api/config');
-        authConfig = await res.json();
+        // B. Tarik Config Auth & Info Instance secara berurutan
+        const [configRes, infoRes] = await Promise.all([
+            fetch('/api/config'),
+            fetch('/api/instance-info')
+        ]);
+
+        authConfig = await configRes.json();
+        const instanceData = await infoRes.json();
+
+        // C. Update UI Metadata
+        const idElement = document.getElementById('instance-id');
+        if (idElement) idElement.innerText = instanceData.instanceId;
+
+        // D. Update UI Auth
         updateAuthUI();
+
     } catch (e) {
-        console.error("Gagal ambil config auth");
+        console.error("Gagal inisialisasi aplikasi:", e);
     }
 }
 
+// Jalankan initApp begitu halaman siap
+document.addEventListener("DOMContentLoaded", () => {
+    initApp();
+    
+    // Draft logic
+    const savedDraft = localStorage.getItem("draft_entry");
+    if (savedDraft) textarea.value = savedDraft;
+});
+
+// --- 2. AUTH FUNCTIONS ---
 function login() {
-    // Pake data dari server, bukan hardcode!
+    // Validasi biar gak nembak URL 'undefined'
+    if (!authConfig.cognitoDomain || !authConfig.cognitoClientId) {
+        alert("Config belum siap, tunggu sebentar atau refresh halaman.");
+        return;
+    }
+
     const domain = authConfig.cognitoDomain; 
     const clientId = authConfig.cognitoClientId;
     const redirectUri = encodeURIComponent(window.location.origin);
@@ -33,25 +60,11 @@ function login() {
     window.location.href = `https://${domain}/login?client_id=${clientId}&response_type=token&scope=email+openid&redirect_uri=${redirectUri}`;
 }
 
-document.addEventListener("DOMContentLoaded", initApp);
-
-// Update UI pas awal load
-document.addEventListener("DOMContentLoaded", () => {
-    updateAuthUI();
-    fetchInstanceInfo();
-    
-    const savedDraft = localStorage.getItem("draft_entry");
-    if (savedDraft) textarea.value = savedDraft;
-});
-
-function toggleMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const isActive = sidebar.classList.toggle('active');
-    overlay.style.display = isActive ? 'block' : 'none';
+function logout() {
+    localStorage.clear();
+    location.reload();
 }
 
-// --- 2. AUTH FUNCTIONS ---
 function parseJwt(token) {
     try {
         const base64Url = token.split('.')[1];
@@ -60,15 +73,11 @@ function parseJwt(token) {
     } catch (e) { return null; }
 }
 
-function logout() {
-    localStorage.clear();
-    location.reload();
-}
-
 function updateAuthUI() {
     const token = localStorage.getItem("jwt");
     if (token) {
         const payload = parseJwt(token);
+        // Cek apakah token masih berlaku (opsional tapi bagus)
         if (payload) {
             const username = payload["cognito:username"] || payload.sub.substring(0, 8);
             document.getElementById("current-user").innerText = "Welcome, " + username;
@@ -83,96 +92,89 @@ function updateAuthUI() {
     document.getElementById("app-content").style.display = "none";
 }
 
-// --- 3. APP LOGIC ---
+// --- 3. UI HELPERS ---
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const isActive = sidebar.classList.toggle('active');
+    overlay.style.display = isActive ? 'block' : 'none';
+}
+
+// --- 4. APP LOGIC (Entries & Reflection) ---
 textarea.oninput = () => {
     localStorage.setItem("draft_entry", textarea.value);
 };
+
 saveBtn.onclick = async () => {
-  const content = textarea.value.trim();
-  if (!content) return;
+    const content = textarea.value.trim();
+    if (!content) return;
 
-  await fetch("/entries", {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + localStorage.getItem("jwt")
-     },
-    body: JSON.stringify({ content })
-  });
+    await fetch("/entries", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("jwt")
+        },
+        body: JSON.stringify({ content })
+    });
 
-  localStorage.removeItem("draft_entry");
-  textarea.value = "";
-  loadEntries();
+    localStorage.removeItem("draft_entry");
+    textarea.value = "";
+    loadEntries();
 };
 
 async function loadEntries() {
-  const res = await fetch("/entries", {
-  headers: {
-    "Authorization": "Bearer " + localStorage.getItem("jwt")
-  }
-});
-  const entries = await res.json();
+    const res = await fetch("/entries", {
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("jwt")
+        }
+    });
+    const entries = await res.json();
 
-  history.innerHTML = "";
-  entries.forEach(e => {
-    const d = new Date(e.created_at);
-    const box = document.createElement("details");
+    history.innerHTML = "";
+    entries.forEach(e => {
+        const d = new Date(e.created_at);
+        const box = document.createElement("details");
 
-    box.innerHTML = `
-      <summary>
-        ${d.toDateString()} – ${d.toLocaleTimeString()}
-        <button class="delete-btn" onclick="event.stopPropagation(); deleteEntry('${e.id}')" title="Delete entry">×</button>
-      </summary>
-      <div class="entry-content">
-        <p class="journal-text">${e.content}</p>
-
-        <div class="reflection" id="reflect-${e.id}">
-          ${e.reflection
-            ? `<strong>${e.mood}</strong><p>${e.reflection}</p>`
-            : `<button onclick="event.stopPropagation(); reflect('${e.id}')">振り返りを見る</button>`}
-          </div>
-      </div>
-    `;
-
-    history.appendChild(box);
-  });
+        box.innerHTML = `
+            <summary>
+                ${d.toDateString()} – ${d.toLocaleTimeString()}
+                <button class="delete-btn" onclick="event.stopPropagation(); deleteEntry('${e.id}')" title="Delete entry">×</button>
+            </summary>
+            <div class="entry-content">
+                <p class="journal-text">${e.content}</p>
+                <div class="reflection" id="reflect-${e.id}">
+                    ${e.reflection
+                        ? `<strong>${e.mood}</strong><p>${e.reflection}</p>`
+                        : `<button onclick="event.stopPropagation(); reflect('${e.id}')">振り返りを見る</button>`}
+                </div>
+            </div>
+        `;
+        history.appendChild(box);
+    });
 }
 
 async function deleteEntry(id) {
-  if (confirm("削除しますか？")) {
-    await fetch(`/entries/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("jwt")
-      }
-    });
-    loadEntries();
-  }
+    if (confirm("削除しますか？")) {
+        await fetch(`/entries/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("jwt")
+            }
+        });
+        loadEntries();
+    }
 }
 
 async function reflect(id) {
-  const res = await fetch(`/entries/${id}/reflection`, {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer " + localStorage.getItem("jwt")
-    }
-  });
-  const data = await res.json();
+    const res = await fetch(`/entries/${id}/reflection`, {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("jwt")
+        }
+    });
+    const data = await res.json();
 
-  const div = document.getElementById(`reflect-${id}`);
-  div.innerHTML = `<strong>${data.mood}</strong><p>${data.text}</p>`;
-}
-
-async function fetchInstanceInfo() {
-  try {
-    const response = await fetch('/api/instance-info');
-    const data = await response.json();
-
-    const idElement = document.getElementById('instance-id');
-    if (idElement) {
-      idElement.innerText = data.instanceId;
-    }
-  } catch (err) {
-    console.error("メタデータの取得に失敗しました:", err);
-  }
+    const div = document.getElementById(`reflect-${id}`);
+    div.innerHTML = `<strong>${data.mood}</strong><p>${data.text}</p>`;
 }
