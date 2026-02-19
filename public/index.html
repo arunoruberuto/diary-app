@@ -8,56 +8,62 @@
 </head>
 <body>
 
+  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sidebar-header">Explore</div>
+    <div class="sidebar-header">Navigation</div>
     <div class="sidebar-item" onclick="location.reload()">
-      <span>🔄</span> Refresh App
+      <span class="icon">🔄</span> Refresh App
     </div>
-    <div class="sidebar-item" onclick="logout()" style="color: #e63946;">
-      <span>🚪</span> Logout
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-item danger" onclick="logout()">
+      <span class="icon">🚪</span> Logout
     </div>
   </div>
   <div id="overlay" onclick="toggleMenu()"></div>
 
+  <!-- AUTH SCREEN -->
   <div id="auth-screen">
     <div class="auth-card">
-      <h1>ZenDiary v2.0</h1>
-      <p>AIによる振り返りで、心を整える。</p>
+      <h1>ZenDiary</h1>
+      <p>AIによる振り返りで、<br>心を整える。</p>
       <button onclick="login()" class="login-btn">Login / Register</button>
     </div>
   </div>
 
+  <!-- APP CONTENT -->
   <div id="app-content" style="display: none;">
     <header class="main-header">
-      <button class="hamburger" id="hamburger-btn" onclick="toggleMenu()">
+      <button class="hamburger" id="hamburger-btn" onclick="toggleMenu()" aria-label="Menu">
         <span></span>
         <span></span>
         <span></span>
       </button>
+      <div class="header-logo">ZenDiary</div>
       <div id="current-user" class="user-info"></div>
     </header>
 
     <div class="container">
+      <!-- LEFT: Write -->
       <div class="left">
-        <h2>今日のできごと</h2>
-        <textarea placeholder="今日の気持ちを、ここに"></textarea>
+        <h2 class="section-title">今日のできごと</h2>
+        <textarea placeholder="今日の気持ちを、ここに…"></textarea>
         <div class="action-bar">
           <button id="save">置いとく</button>
         </div>
       </div>
 
+      <!-- RIGHT: History -->
       <div class="right">
-        <h2>これまでのできごと</h2>
-        <div id="history"></div>
+        <h2 class="section-title">これまでのできごと</h2>
+        <div id="history" class="entries-list"></div>
       </div>
     </div>
   </div>
 
+  <!-- SYSTEM BANNER -->
   <div id="demo-banner" class="demo-banner">
     <span class="pulse-dot"></span>
-    <span class="banner-text">
-      SYSTEM_v2_HEALTHY | <span id="instance-id">i-123456789</span>
-    </span>
+    <span class="banner-text">SYSTEM_v2_HEALTHY | <span id="instance-id">i-123456789</span></span>
   </div>
 
   <script src="app.js"></script>

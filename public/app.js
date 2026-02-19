@@ -25,10 +25,14 @@ function updateAuthUI() {
         const payload = parseJwt(token);
         if (payload) {
             const username = payload["cognito:username"] || payload.email || "User";
-            document.getElementById("current-user").innerText = "Welcome, " + username;
+            document.getElementById("current-user").innerText = username;
             authScreen.style.display = "none";
             appContent.style.display = "block";
             loadEntries();
+
+            // Restore draft
+            const draft = localStorage.getItem("draft_entry");
+            if (draft) textarea.value = draft;
             return;
         }
     }
@@ -38,11 +42,9 @@ function updateAuthUI() {
 
 // --- INIT ---
 async function initApp() {
-    // FIX 1 LOAD TOKEN FIRST
     getAndSaveToken();
     updateAuthUI();
 
-    // THEN LOAD CONFIG
     try {
         const [configRes, infoRes] = await Promise.all([
             fetch('/api/config').catch(() => null),
@@ -50,7 +52,7 @@ async function initApp() {
         ]);
 
         if (configRes && configRes.ok) authConfig = await configRes.json();
-        
+
         if (infoRes && infoRes.ok) {
             const instanceData = await infoRes.json();
             const idElement = document.getElementById('instance-id');
@@ -66,7 +68,7 @@ document.addEventListener("DOMContentLoaded", initApp);
 // --- HELPER FUNCTIONS ---
 function login() {
     if (!authConfig.cognitoDomain) return alert("Sabar, sistem lagi booting...");
-    const domain = authConfig.cognitoDomain; 
+    const domain = authConfig.cognitoDomain;
     const clientId = authConfig.cognitoClientId;
     const redirectUri = encodeURIComponent(window.location.origin);
     window.location.href = `https://${domain}/login?client_id=${clientId}&response_type=token&scope=email+openid&redirect_uri=${redirectUri}`;
@@ -89,24 +91,28 @@ function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
     const hamburger = document.getElementById('hamburger-btn');
-    
+
     const isActive = sidebar.classList.toggle('active');
     overlay.classList.toggle('active', isActive);
     hamburger.classList.toggle('active', isActive);
 }
 
-// --- APP LOGIC ---
+// --- SAVE DRAFT ---
 textarea.oninput = () => {
     localStorage.setItem("draft_entry", textarea.value);
 };
 
+// --- SAVE ENTRY ---
 saveBtn.onclick = async () => {
     const content = textarea.value.trim();
     if (!content) return;
 
+    saveBtn.disabled = true;
+    saveBtn.textContent = "保存中…";
+
     await fetch("/entries", {
         method: "POST",
-        headers: { 
+        headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + localStorage.getItem("jwt")
         },
@@ -115,26 +121,45 @@ saveBtn.onclick = async () => {
 
     localStorage.removeItem("draft_entry");
     textarea.value = "";
+    saveBtn.disabled = false;
+    saveBtn.textContent = "置いとく";
     loadEntries();
 };
 
+// --- LOAD ENTRIES ---
 async function loadEntries() {
     const res = await fetch("/entries", {
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("jwt")
-        }
+        headers: { "Authorization": "Bearer " + localStorage.getItem("jwt") }
     });
     const entries = await res.json();
 
     history.innerHTML = "";
+
+    if (!entries || entries.length === 0) {
+        history.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">✦</div>
+                <p>まだ記録がありません。<br>今日のできごとを書いてみましょう。</p>
+            </div>
+        `;
+        return;
+    }
+
     entries.forEach(e => {
         const d = new Date(e.created_at);
+        const dateStr = d.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' });
+        const timeStr = d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+
         const box = document.createElement("details");
 
         box.innerHTML = `
             <summary>
-                ${d.toDateString()} – ${d.toLocaleTimeString()}
-                <button class="delete-btn" onclick="event.stopPropagation(); deleteEntry('${e.id}')" title="Delete entry">×</button>
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                    <span class="summary-date">${dateStr}</span>
+                    <span class="summary-time">${timeStr}</span>
+                </div>
+                <button class="delete-btn" onclick="event.stopPropagation(); deleteEntry('${e.id}')" title="Delete">×</button>
+                <span class="summary-chevron">▾</span>
             </summary>
             <div class="entry-content">
                 <p class="journal-text">${e.content}</p>
@@ -149,24 +174,25 @@ async function loadEntries() {
     });
 }
 
+// --- DELETE ---
 async function deleteEntry(id) {
-    if (confirm("削除しますか？")) {
+    if (confirm("このエントリを削除しますか？")) {
         await fetch(`/entries/${id}`, {
             method: "DELETE",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("jwt")
-            }
+            headers: { "Authorization": "Bearer " + localStorage.getItem("jwt") }
         });
         loadEntries();
     }
 }
 
+// --- REFLECT ---
 async function reflect(id) {
+    const btn = document.querySelector(`#reflect-${id} button`);
+    if (btn) { btn.disabled = true; btn.textContent = "考え中…"; }
+
     const res = await fetch(`/entries/${id}/reflection`, {
         method: "POST",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("jwt")
-        }
+        headers: { "Authorization": "Bearer " + localStorage.getItem("jwt") }
     });
     const data = await res.json();
 
