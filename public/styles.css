@@ -424,7 +424,7 @@ summary::-webkit-details-marker { display: none; }
   flex-shrink: 0;
   transition: transform 0.3s;
   color: var(--text-muted);
-  font-size: 11px;
+  font-size: 24px;
   margin-left: auto;
 }
 
