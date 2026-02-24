@@ -19,7 +19,7 @@ resource "aws_launch_template" "app_lt" {
     }
   }
 
-  # --- BAGIAN USER DATA OTOMATIS ---
+  # --- USER DATA ---
   user_data = base64encode(<<-EOF
     #!/bin/bash
     # well, just in case
@@ -81,7 +81,10 @@ resource "aws_autoscaling_group" "app_asg" {
   }
 }
 
+# -------------------------------------------------
 # Policy: Scale Out
+# -------------------------------------------------
+
 resource "aws_autoscaling_policy" "cpu_scaling_out" {
   name                   = "cpu-scaling-out"
   autoscaling_group_name = aws_autoscaling_group.app_asg.name
@@ -108,7 +111,10 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   alarm_actions = [aws_autoscaling_policy.cpu_scaling_out.arn]
 }
 
+# -------------------------------------------------
 # Policy: Scale In
+# -------------------------------------------------
+
 resource "aws_autoscaling_policy" "cpu_scaling_in" {
   name                   = "cpu-scaling-in"
   autoscaling_group_name = aws_autoscaling_group.app_asg.name

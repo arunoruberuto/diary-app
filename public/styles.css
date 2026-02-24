@@ -246,7 +246,7 @@ body {
   flex-shrink: 0;
 }
 
-/* --- MAIN CONTAINER --- */
+/* --- MAIN LAYOUT --- */
 .container {
   display: flex;
   height: calc(100vh - 64px);

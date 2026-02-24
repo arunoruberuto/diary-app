@@ -1,4 +1,6 @@
-# first
+# -------------------------------------------------
+# VPC settings
+# -------------------------------------------------
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
@@ -16,6 +18,10 @@ resource "aws_internet_gateway" "igw" {
     Name = "${var.project_name}-igw"
   }
 }
+
+# -------------------------------------------------
+# 2 Public Subnets for ALB + NAT Gateway
+# -------------------------------------------------
 
 resource "aws_subnet" "public_1" {
   vpc_id                  = aws_vpc.main.id
@@ -39,7 +45,10 @@ resource "aws_subnet" "public_2" {
   }
 }
 
-# 7. Private Subnet 1 (AZ 1a) for RDS
+# -------------------------------------------------
+# 2 Private Subnets for RDS
+# -------------------------------------------------
+
 resource "aws_subnet" "private_1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.11.0/24"
@@ -50,7 +59,6 @@ resource "aws_subnet" "private_1" {
   }
 }
 
-# 8. Private Subnet 2 (AZ 1b) for RDS
 resource "aws_subnet" "private_2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.12.0/24"
@@ -75,7 +83,10 @@ resource "aws_route_table" "public_rt" {
   }
 }
 
-# connect subnet to route table public
+# -------------------------------------------------
+# RT Associations
+# -------------------------------------------------
+
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.public_1.id
   route_table_id = aws_route_table.public_rt.id
@@ -96,7 +107,10 @@ resource "aws_route_table_association" "private_b" {
   route_table_id = aws_route_table.private_rt.id
 }
 
-# private subnet for app (EC2 instances)
+# -------------------------------------------------
+# 2 Private Subnets for App
+# -------------------------------------------------
+
 resource "aws_subnet" "private_app_1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.21.0/24"
@@ -111,7 +125,6 @@ resource "aws_subnet" "private_app_2" {
   tags              = { Name = "${var.project_name}-private-app-1b" }
 }
 
-# associate private app subnets to private route table
 resource "aws_route_table_association" "app_private_a" {
   subnet_id      = aws_subnet.private_app_1.id
   route_table_id = aws_route_table.private_rt.id
@@ -122,13 +135,15 @@ resource "aws_route_table_association" "app_private_b" {
   route_table_id = aws_route_table.private_rt.id
 }
 
-# elastic IP for NAT Gateway
+# -------------------------------------------------
+# EIP + NAT Gateway 
+# -------------------------------------------------
+
 resource "aws_eip" "nat_eip" {
   domain = "vpc"
   tags   = { Name = "${var.project_name}-nat-eip" }
 }
 
-# NAT Gateway
 resource "aws_nat_gateway" "main_nat" {
   allocation_id = aws_eip.nat_eip.id
   subnet_id     = aws_subnet.public_1.id # here so can access internet
@@ -138,7 +153,7 @@ resource "aws_nat_gateway" "main_nat" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-# Route Table Private
+# Route Table Private -> NAT
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.main.id
 

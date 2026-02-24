@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", initApp);
 
 // --- HELPER FUNCTIONS ---
 function login() {
-    if (!authConfig.cognitoDomain) return alert("Sabar, sistem lagi booting...");
+    if (!authConfig.cognitoDomain) return alert("少々お待ちください。");
     const domain = authConfig.cognitoDomain;
     const clientId = authConfig.cognitoClientId;
     const redirectUri = encodeURIComponent(window.location.origin);
