@@ -210,7 +210,7 @@ app.get("/crash", (req, res) => {
   res.send("サーバーが異常（Unhealthy）状態になりました。ASGによる終了をお待ちください。");
 });
 
-// エンドポイント：CPU負荷生成
+// エンドポイント：CPU負荷生成 -> crash #2 Try #3
 app.get("/heavy-load", (req, res) => {
   console.log("高CPU負荷をシミュレーション中。。");
   res.send("高負荷を生成しています。CloudWatchダッシュボードをご確認ください。");
